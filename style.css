@@ -1,0 +1,13 @@
+.interviewer {
+	text-align: left;
+	background-color: beige;
+	margin-top: 0px;
+	margin-bottom: 0px;
+}
+
+.guest {
+	text-align: right;
+	background-color: white;
+	margin-top: 0px;
+	margin-bottom: 0px;
+}
