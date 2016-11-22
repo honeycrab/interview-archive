@@ -24,6 +24,24 @@ $(function(){
 		greetingSearch = "nice to meet you";
 		goodbyeSearch = "goodbye";
 
+		Tweet.greeting = Tweet.load(greetingSearch);
+		Tweet.storage = Tweet.load(Tweet.search);
+
+		Tweet.clear();
+		//display introductory remarks
+		Tweet.display(Tweet.interviewer(0), "interviewer");
+		Tweet.display(Tweet.greeting, "guest");
+
+		//display conversation based on search term
+		for(var i=1; i < Tweet.storage.length; i++) {
+			console.log("i = " + i);
+			Tweet.display(Tweet.interviewer(i), "interviewer");
+			Tweet.display(Tweet.storage[i], "guest");
+		}
+		console.log(Tweet.storage);
+
+
+		/*
 		//loads greeting text from twitter
 		$.ajax({
 			url: 'get_tweets.php?search=' + encodeURIComponent(greetingSearch),
@@ -95,10 +113,13 @@ $(function(){
 				console.log('Request error');
 			}
 		});
+		*/
 	});
+
 
 	Tweet = {
 
+		storage: "",
 		search: "",
 		greeting: "",
 		goodbye: "",
@@ -244,6 +265,38 @@ $(function(){
 		},
 
 		down: function(index) {
+
+		}
+
+		//removing this and uncommenting other ajax calls will fix whatever ive done ahhhh
+		load: function(searchTerm) {
+
+			$.ajax({
+				url: 'get_tweets.php?search=' + encodeURIComponent(searchTerm),
+				type: 'GET',
+				success: function(response) {
+					console.log(response); //debug
+
+					if (typeof response.errors === 'undefined' || response.errors.length < 1) {
+
+						var output = [];
+						//load tweets into output
+						$.each(response.statuses, function(i, obj) {
+							output.push(obj.text);
+						});
+
+						return output;
+					}
+					else {
+						$('.tweets-container p:first').text('Response error');
+					}
+					
+				},
+
+				error: function(errors) {
+					$('.tweets-container p:first').text('Request error');
+				}
+			});	
 
 		}
 
