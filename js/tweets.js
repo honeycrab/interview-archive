@@ -6,7 +6,38 @@
 
 $(function(){
 
-	var tweetArr = [];
+	var loadData = function() {
+		var p1 = Tweet.load(greetingSearch);
+		var p2 = Tweet.load(Tweet.search);
+
+		Promise.all([p1, p2])
+			.then(function(results) {
+	     		// we only get here if ALL promises fulfill
+	     		Tweet.greeting = results[0];
+	     		Tweet.storage = results[1];
+	     		
+	     		Tweet.clear();
+				//display introductory remarks
+				Tweet.display(Tweet.interviewer(0), "interviewer");
+				Tweet.display(Tweet.greeting[0], "guest");
+
+				//display conversation based on search term
+				for(var i=1; i < Tweet.storage.length; i++) {
+					console.log("i = " + i);
+					Tweet.display(Tweet.interviewer(i), "interviewer");
+					Tweet.display(Tweet.storage[i], "guest");
+				}
+				console.log(Tweet.storage);
+
+	  		})
+  			.catch(function(err) {
+			    // Will catch failure of first failed promise
+			    console.log("Failed:", err);
+  			});
+	}
+
+  	greetingSearch = "nice to meet you";
+	goodbyeSearch = "goodbye";
 
 	//enter button works as submit
 	document.getElementById("search-field").addEventListener("keyup", function(event) {
@@ -20,100 +51,7 @@ $(function(){
 
 		Tweet.search = document.getElementById("search-field").value;
 
-		//predefined search terms
-		greetingSearch = "nice to meet you";
-		goodbyeSearch = "goodbye";
-
-		Tweet.greeting = Tweet.load(greetingSearch);
-		Tweet.storage = Tweet.load(Tweet.search);
-
-		Tweet.clear();
-		//display introductory remarks
-		Tweet.display(Tweet.interviewer(0), "interviewer");
-		Tweet.display(Tweet.greeting, "guest");
-
-		//display conversation based on search term
-		for(var i=1; i < Tweet.storage.length; i++) {
-			console.log("i = " + i);
-			Tweet.display(Tweet.interviewer(i), "interviewer");
-			Tweet.display(Tweet.storage[i], "guest");
-		}
-		console.log(Tweet.storage);
-
-
-		/*
-		//loads greeting text from twitter
-		$.ajax({
-			url: 'get_tweets.php?search=' + encodeURIComponent(greetingSearch),
-			type: 'GET',
-			success: function(response) {
-				console.log(response); //debug
-
-				if (typeof response.errors === 'undefined' || response.errors.length < 1) {
-					
-					Tweet.greeting = response.statuses[0].text;
-				}
-
-				//then loads main tweets from twitter
-				$.ajax({
-					url: 'get_tweets.php?search=' + encodeURIComponent(Tweet.search),
-					type: 'GET',
-					success: function(response) {
-						console.log(response); //debug
-
-						if (typeof response.errors === 'undefined' || response.errors.length < 1) {
-
-							tweetArr = [];
-							//load tweets into tweetArr
-							$.each(response.statuses, function(i, obj) {
-								tweetArr.push(obj.text);
-							});
-							
-							Tweet.clear();
-							//display introductory remarks
-							Tweet.display(Tweet.interviewer(0), "interviewer");
-							Tweet.display(Tweet.greeting, "guest");
-
-							//display conversation based on search term
-							for(var i=1; i < tweetArr.length; i++) {
-								console.log("i = " + i);
-								Tweet.display(Tweet.interviewer(i), "interviewer");
-								Tweet.display(tweetArr[i], "guest");
-							}
-							console.log(tweetArr);
-						} 
-						else {
-							$('.tweets-container p:first').text('Response error');
-						}
-					},
-			
-					error: function(errors) {
-						$('.tweets-container p:first').text('Request error');
-					}
-				});	
-			},
-			error: function(errors) {
-				console.log('Request error');
-			}
-		});
-		
-		//loads backup tweet array
-		$.ajax({
-			url: 'get_tweets.php?search=' + encodeURIComponent(greetingSearch),
-			type: 'GET',
-			success: function(response) {
-				console.log("backup tweets: " + response); //debug
-
-				if (typeof response.errors === 'undefined' || response.errors.length < 1) {
-					
-					Tweet.backup = response.statuses[0].text;
-				}
-			},
-			error: function(errors) {
-				console.log('Request error');
-			}
-		});
-		*/
+		loadData();
 	});
 
 
@@ -266,37 +204,40 @@ $(function(){
 
 		down: function(index) {
 
-		}
+		},
 
 		//removing this and uncommenting other ajax calls will fix whatever ive done ahhhh
 		load: function(searchTerm) {
 
-			$.ajax({
-				url: 'get_tweets.php?search=' + encodeURIComponent(searchTerm),
-				type: 'GET',
-				success: function(response) {
-					console.log(response); //debug
+			return new Promise(function(resolve, reject) {
 
-					if (typeof response.errors === 'undefined' || response.errors.length < 1) {
+				$.ajax({
+					url: 'get_tweets.php?search=' + encodeURIComponent(searchTerm),
+					type: 'GET',
+					success: function(response) {
+						console.log(response); //debug
 
-						var output = [];
-						//load tweets into output
-						$.each(response.statuses, function(i, obj) {
-							output.push(obj.text);
-						});
+						if (typeof response.errors === 'undefined' || response.errors.length < 1) {
 
-						return output;
+							var output = [];
+							//load tweets into output
+							$.each(response.statuses, function(i, obj) {
+								output.push(obj.text);
+							});
+
+							resolve(output);
+						}
+						else {
+							$('.tweets-container p:first').text('Response error');
+						}
+						
+					},
+
+					error: function(errors) {
+						reject(output);
 					}
-					else {
-						$('.tweets-container p:first').text('Response error');
-					}
-					
-				},
-
-				error: function(errors) {
-					$('.tweets-container p:first').text('Request error');
-				}
-			});	
+				});	
+			})
 
 		}
 
