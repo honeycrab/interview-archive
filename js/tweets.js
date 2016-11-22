@@ -94,6 +94,7 @@ $(function(){
 			error: function(errors) {
 				console.log('Request error');
 			}
+		});
 	});
 
 	Tweet = {
@@ -211,7 +212,7 @@ $(function(){
 			        break;
 			    case 6:
 			        
-}
+			}
 
 		},
 
@@ -247,8 +248,5 @@ $(function(){
 		}
 
 	}
-	//
-	//
-
 
 });
