@@ -1,3 +1,9 @@
+// TO DO: -buffer a new AJAX query with tweets
+//                  add button on each line to "retranslate" tweet
+//        -allow user to specify guest name via optional text field
+//        -add array of adjectives
+//        -allow user to reorder responses (might require attention first)
+
 $(function(){
 
 	var tweetArr = [];
@@ -30,6 +36,7 @@ $(function(){
 					Tweet.greeting = response.statuses[0].text;
 				}
 
+				//then loads main tweets from twitter
 				$.ajax({
 					url: 'get_tweets.php?search=' + encodeURIComponent(Tweet.search),
 					type: 'GET',
@@ -71,7 +78,22 @@ $(function(){
 				console.log('Request error');
 			}
 		});
+		
+		//loads backup tweet array
+		$.ajax({
+			url: 'get_tweets.php?search=' + encodeURIComponent(greetingSearch),
+			type: 'GET',
+			success: function(response) {
+				console.log("backup tweets: " + response); //debug
 
+				if (typeof response.errors === 'undefined' || response.errors.length < 1) {
+					
+					Tweet.backup = response.statuses[0].text;
+				}
+			},
+			error: function(errors) {
+				console.log('Request error');
+			}
 	});
 
 	Tweet = {
@@ -80,6 +102,7 @@ $(function(){
 		greeting: "",
 		goodbye: "",
 		guestName: "Rigel",
+		backup: "",
 
 		removeSubString: function(text, excise) {
 
@@ -138,7 +161,7 @@ $(function(){
 				var startPos = text.indexOf(getFrom);
 				var endPos = text.indexOf(getUntil, startPos);
 				if (endPos == -1) {
-					endPos = text.length - 1;
+					endPos = text.length;
 				}
 
 				else { endPos += 1; }
