@@ -9,14 +9,21 @@ $(function(){
 	var loadData = function() {
 		var p1 = Tweet.load(greetingSearch);
 		var p2 = Tweet.load(Tweet.search);
+		var p3 = Tweet.load(Tweet.search + " fun");
+		var p4 = Tweet.load(goodbyeSearch);
 
-		Promise.all([p1, p2])
+		Promise.all([p1, p2, p3, p4])
 			.then(function(results) {
 	     		// we only get here if ALL promises fulfill
 	     		Tweet.greeting = results[0];
 	     		Tweet.storage = results[1];
+	     		Tweet.backup = results[2];
+	     		console.log("STORAGE TWEETS ARE: " + Tweet.storage);
+	     		console.log("BACKUP TWEETS ARE: " + Tweet.backup);
+	     		Tweet.goodbye = results[3];
 	     		
 	     		Tweet.clear();
+
 				//display introductory remarks
 				Tweet.display(Tweet.interviewer(0), "interviewer");
 				Tweet.display(Tweet.greeting[0], "guest");
@@ -27,13 +34,20 @@ $(function(){
 					Tweet.display(Tweet.interviewer(i), "interviewer");
 					Tweet.display(Tweet.storage[i], "guest");
 				}
+
+				//display goodbyes
+				Tweet.display(Tweet.interviewer(Tweet.storage.length), "interviewer");
+				Tweet.display(Tweet.goodbye[0], "guest");
+
 				console.log(Tweet.storage);
 
 	  		})
   			.catch(function(err) {
 			    // Will catch failure of first failed promise
-			    console.log("Failed:", err);
+			    alert("Failed:", err);
   			});
+  			Tweet.clear();
+  			document.getElementById("tweets-container").innerHTML = "<br><center>searching for specified interview... </center><br><br>";
 	}
 
   	greetingSearch = "nice to meet you";
