@@ -12,6 +12,8 @@ $(function(){
 		var p3 = Tweet.load(Tweet.search + " fun");
 		var p4 = Tweet.load(goodbyeSearch);
 
+		Tweet.randomNumber = Math.floor(Math.random() * Tweet.adj.length);
+
 		Promise.all([p1, p2, p3, p4])
 			.then(function(results) {
 	     		// we only get here if ALL promises fulfill
@@ -47,7 +49,7 @@ $(function(){
 			    alert("Failed:", err);
   			});
   			Tweet.clear();
-  			document.getElementById("tweets-container").innerHTML = "<br><center>searching for specified interview... </center><br><br>";
+  			document.getElementById("tweets-container").innerHTML = "<br><center>loading specified interview... </center><br><br>";
 	}
 
   	greetingSearch = "nice to meet you";
@@ -71,12 +73,15 @@ $(function(){
 
 	Tweet = {
 
-		storage: "",
-		search: "",
-		greeting: "",
-		goodbye: "",
+		storage: "", //main storage array for tweets
+		search: "", //the user's input
+		greeting: "", //storage array for greeting tweets
+		goodbye: "", //storage array for goodbye tweets
 		guestName: "Rigel",
-		backup: "",
+		backup: "", //storage array for backup tweets
+
+		randomNumber: "", //random index of adj array rerolled each time user hits Submit
+		adj: ["computational", "expensive", "precious", "logical", "soviet"],
 
 		removeSubString: function(text, excise) {
 
@@ -163,7 +168,6 @@ $(function(){
 		interviewer: function(line) {
 
 			var name = "Interviewer";
-			var adj = "cloud-based";
 			switch (line) {
 			    case 0:
 			        return name + ": Hello, I am here with " + Tweet.guestName + ". Thank you for joining us today.";
@@ -178,7 +182,7 @@ $(function(){
 			        return name + ": Interesting indeed... but how do you reconcile that with the tendency of " + Tweet.search + " to keep on surprising us?";
 			        break;
 			    case 4:
-			        return name + ": It says in my notes here that you have a particular interest in " + adj + " " + Tweet.search + ". Can you elaborate?";
+			        return name + ": It says in my notes here that you have a particular interest in " + Tweet.adj[Tweet.randomNumber] + " " + Tweet.search + ". Can you elaborate?";
 			        break;
 			    case 5:
 			        return name + ": It sounds like " + Tweet.search + " is here to stay. Thank you again for granting us this interview";
